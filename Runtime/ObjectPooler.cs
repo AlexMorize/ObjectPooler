@@ -108,7 +108,9 @@ namespace SR.ObjectPooler
             //Above line remove (Clone) at the end to get the PoolID
             if (singleton.poolers.TryGetValue(poolID, out PoolOfObject currentPool))
             {
-                obj.SendMessage("OnStockToPool",SendMessageOptions.DontRequireReceiver);
+                IStockToPoolHandler[] stockToPoolHandles = obj.GetComponents<IStockToPoolHandler>();
+                for (int i = 0; i < stockToPoolHandles.Length; i++)
+                    stockToPoolHandles[i].OnStockToPool();
                 currentPool.StockObjectInPool(obj);
             }
             else
@@ -158,6 +160,9 @@ namespace SR.ObjectPooler
                 // List.RemoveAt(0) est moins performant que List.RemoveAt(LeDernier)
                 inactiveObjects.RemoveAt(inactiveObjects.Count - 1);
                 result.SetActive(true);
+                IReleaseFromPoolHandler[] releaseFromPoolHandles = result.GetComponents<IReleaseFromPoolHandler>();
+                for (int i = 0; i < releaseFromPoolHandles.Length; i++)
+                    releaseFromPoolHandles[i].OnReleaseFromPool();
 #if UNITY_EDITOR
                 result.transform.parent = null;
                 //On build this operation is made in StockObjectInPool()
