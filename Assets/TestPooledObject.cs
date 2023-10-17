@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using SR.ObjectPooler;
 
-public class TestPooledObject : MonoBehaviour
+public class TestPooledObject : MonoBehaviour, IReleaseFromPoolHandler, IStockToPoolHandler
 {
-    void OnStockToPool()
+    public void OnStockToPool()
     {
         Debug.Log("StockToPool");
     }
@@ -12,5 +13,10 @@ public class TestPooledObject : MonoBehaviour
     void OnDestroy()
     {
         Debug.Log("Destroy");
+    }
+
+    public void OnReleaseFromPool()
+    {
+        Debug.Log("ReleaseFromPool");
     }
 }
