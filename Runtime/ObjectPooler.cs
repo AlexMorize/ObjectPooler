@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System;
+using System.Threading.Tasks;
 
 namespace SR.ObjectPooler
 {
@@ -19,8 +21,8 @@ namespace SR.ObjectPooler
             }
         }
         private static ObjectPooler instance;
-        //Do not EVER change this value
-
+        //Do not EVER use this value
+        
         #region Pool Management
         /// <summary>
         /// Populate a pool. Create the pool if not existing yet.
@@ -32,7 +34,7 @@ namespace SR.ObjectPooler
             PoolOfObject currentPool = GetOrCreatePool(obj.name);
             for (int i = 0; i < amount; i++)
             {
-                currentPool.StockObjectInPool(Object.Instantiate(obj));
+                currentPool.StockObjectInPool(Instantiate(obj));
             }
         }
 
@@ -108,6 +110,12 @@ namespace SR.ObjectPooler
                 currentPool.StockObjectInPool(obj);
             else
                 throw new System.Exception($"You are trying to Destroy an object ({obj}) that was not created by the ObjectPooler");
+        }
+
+        public static async void StockToPool(GameObject obj, float duration)
+        {
+            await Task.Delay(Mathf.RoundToInt(duration * 1000));
+            StockToPool(obj);
         }
         #endregion
 
