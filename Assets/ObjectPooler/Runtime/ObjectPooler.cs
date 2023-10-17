@@ -107,7 +107,10 @@ namespace SR.ObjectPooler
             //When unity instantiate an object, the name change and add (Clone) to the end
             //Above line remove (Clone) at the end to get the PoolID
             if (singleton.poolers.TryGetValue(poolID, out PoolOfObject currentPool))
+            {
+                obj.SendMessage("OnStockToPool");
                 currentPool.StockObjectInPool(obj);
+            }
             else
                 throw new System.Exception($"You are trying to Destroy an object ({obj}) that was not created by the ObjectPooler");
         }
