@@ -108,7 +108,7 @@ namespace SR.ObjectPooler
             //Above line remove (Clone) at the end to get the PoolID
             if (singleton.poolers.TryGetValue(poolID, out PoolOfObject currentPool))
             {
-                obj.SendMessage("OnStockToPool");
+                obj.SendMessage("OnStockToPool",SendMessageOptions.DontRequireReceiver);
                 currentPool.StockObjectInPool(obj);
             }
             else
