@@ -9,6 +9,7 @@ public class PoolTester : MonoBehaviour
 
     [SerializeField] private bool instantiateOne;    
     [SerializeField] private bool destroyLast;    
+    [SerializeField] private bool destroyLastDelay;    
     [SerializeField] private int population = 1;    
     [SerializeField] private bool populate;
 
@@ -27,6 +28,13 @@ public class PoolTester : MonoBehaviour
         ObjectPooler.StockToPool(Last);
     }
 
+    private void DestroyLastDelay()
+    {
+        if (!destroyLastDelay) return;
+        destroyLastDelay = false;
+        ObjectPooler.StockToPool(Last,2);
+    }
+
     private void Populate()
     {
         if (!populate) return;
@@ -38,6 +46,7 @@ public class PoolTester : MonoBehaviour
     {
         Populate();
         DestroyLast();
+        DestroyLastDelay();
         InstOne();
     }
 }
