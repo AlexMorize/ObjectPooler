@@ -164,6 +164,7 @@ namespace SR.ObjectPooler
             public PoolOfObject()
             {
                 inactiveObjects = new List<GameObject>();
+                stockedHash = new HashSet<GameObject>();
             }
 
             public void StockObjectInPool(GameObject obj)
