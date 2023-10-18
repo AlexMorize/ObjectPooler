@@ -1,6 +1,6 @@
 {
     "name": "com.sr.object_pooler",
-    "version": "0.2.0",
+    "version": "0.4.0",
     "displayName": "Object Pooler",
     "description": "This is generic save file system",
   "unity": "2022.3",
