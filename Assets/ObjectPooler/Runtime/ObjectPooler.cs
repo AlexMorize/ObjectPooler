@@ -65,7 +65,7 @@ namespace SR.ObjectPooler
         #region Instantiate
         /// <summary>
         /// Instantiate a GameObject by picking it in the corresponding Pool, or if not existing, create one.
-        /// It also create a pool if not existing.
+        /// It also create a pool if not existing. DO NOT WORK WITH DONT DESTROY ON LOAD !
         /// </summary>
         /// <returns>The instantiate GameObject</returns>
         public static GameObject InstantiateFromPool(GameObject obj)
@@ -80,6 +80,11 @@ namespace SR.ObjectPooler
             return Instantiate(obj);
         }
 
+        /// <summary>
+        /// Instantiate a GameObject by picking it in the corresponding Pool, or if not existing, create one.
+        /// It also create a pool if not existing. DO NOT WORK WITH DONT DESTROY ON LOAD !
+        /// </summary>
+        /// <returns>The instantiate GameObject</returns>
         public static GameObject InstantiateFromPool(GameObject obj, Vector3 position, Quaternion rotation)
         {
             PoolOfObject currentPool = GetOrCreatePool(obj.name);
@@ -99,7 +104,7 @@ namespace SR.ObjectPooler
         #region Destroy
 
         /// <summary>
-        /// Disable a gameobject and store it in the pool
+        /// Disable a gameobject and store it in the pool.  DO NOT WORK WITH DONT DESTROY ON LOAD !
         /// </summary>
         /// <param name="obj"></param>
         public static void StockToPool(GameObject obj)
@@ -121,7 +126,8 @@ namespace SR.ObjectPooler
         public static async void StockToPool(GameObject obj, float duration)
         {
             await Task.Delay(Mathf.RoundToInt(duration * 1000));
-            StockToPool(obj);
+            if(obj) //Checking if object still exist (Obj is destroy on changing scene)
+                StockToPool(obj);
         }
         #endregion
 
