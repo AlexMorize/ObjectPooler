@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Threading.Tasks;
+using System.Collections;
 
 namespace SR.ObjectPooler
 {
@@ -124,12 +125,35 @@ namespace SR.ObjectPooler
         }
         #endregion
 
+        #region Coroutine
+        /// <summary>
+        /// Wait the end of frame to call OnReleaseFromPool
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        IEnumerator ReleaseFromPoolCoroutine(GameObject obj)
+        {
+            yield return new WaitForEndOfFrame();
+            IReleaseFromPoolHandler[] releaseFromPoolHandles = obj.GetComponents<IReleaseFromPoolHandler>();
+            for (int i = 0; i < releaseFromPoolHandles.Length; i++)
+                releaseFromPoolHandles[i].OnReleaseFromPool();
+        }
+        #endregion
+
         private class PoolOfObject
         {
             private List<GameObject> inactiveObjects;
+            private HashSet<GameObject> stockedHash;
 
 #if UNITY_EDITOR //On editor ONLY, we want to store object of pools in a container (more readable)
             private Transform poolContainer;
+
+            /// <summary>
+            /// THIS METHOD ONLY WORK ON UNITY_EDITOR
+            /// Create a container to store object from this pool
+            /// </summary>
+            /// <param name="name"></param>
+            /// <param name="parent"></param>
             public void CreateContainer(string name, Transform parent)
             {
                 poolContainer = new GameObject(name).transform;
@@ -144,6 +168,10 @@ namespace SR.ObjectPooler
 
             public void StockObjectInPool(GameObject obj)
             {
+                //Do not sotck an object if it is already stocked
+                if (!stockedHash.Add(obj))
+                    return;
+
 #if UNITY_EDITOR//On editor ONLY, we want to store object of pools in a container (more readable)
                 obj.transform.parent = poolContainer;
 #else
@@ -158,17 +186,23 @@ namespace SR.ObjectPooler
                 GameObject result = inactiveObjects[inactiveObjects.Count - 1];
                 // Récupération du dernier éléments plutot que du premier
                 // List.RemoveAt(0) est moins performant que List.RemoveAt(LeDernier)
-                inactiveObjects.RemoveAt(inactiveObjects.Count - 1);
+                inactiveObjects.RemoveAt(inactiveObjects.Count - 1);//Remove from list
+                stockedHash.Remove(result);//Remove from hashset, this hashet is only used to check if elements is already present in the list in StockObjectInPool()
                 result.SetActive(true);
-                IReleaseFromPoolHandler[] releaseFromPoolHandles = result.GetComponents<IReleaseFromPoolHandler>();
-                for (int i = 0; i < releaseFromPoolHandles.Length; i++)
-                    releaseFromPoolHandles[i].OnReleaseFromPool();
+
+                //Call OnReleaseFromPool, with a one frame delay
+                singleton.StartCoroutine(singleton.ReleaseFromPoolCoroutine(result));
 #if UNITY_EDITOR
                 result.transform.parent = null;
                 //On build this operation is made in StockObjectInPool()
                 //We apply it here, on Editor, to get a similar result
 #endif
                 return result;
+            }
+
+            public bool PoolContains(GameObject obj)
+            {
+                return stockedHash.Contains(obj);
             }
 
             public bool IsObjectInPool => inactiveObjects.Count > 0;
